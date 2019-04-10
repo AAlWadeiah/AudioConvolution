@@ -1,0 +1,38 @@
+Making the array
+Number of samples 1769472
+Size of header is 36 bytes
+----------------------------------------------
+Chunk ID: RIFF
+Chunk Size: 3538982
+Format: WAVE
+Sub-Chunk 1 ID: fmt 
+Sub-Chunk 1 Size: 18
+Audio Format: 1
+Number of Channels: 1
+Sample Rate: 44100 Hz
+Byte Rate: 88200
+Block Align: 2
+Bits per Sample: 16
+Size of data header is 8 bytes
+----------------------------------------------
+Sub-Chunk 2 ID: data
+Sub-Chunk 2 Size: 3538944
+Making the array
+Number of samples 106599
+Size of header is 36 bytes
+----------------------------------------------
+Chunk ID: RIFF
+Chunk Size: 213236
+Format: WAVE
+Sub-Chunk 1 ID: fmt 
+Sub-Chunk 1 Size: 18
+Audio Format: 1
+Number of Channels: 1
+Sample Rate: 44100 Hz
+Byte Rate: 88200
+Block Align: 2
+Bits per Sample: 16
+Size of data header is 8 bytes
+----------------------------------------------
+Sub-Chunk 2 ID: data
+Sub-Chunk 2 Size: 213198
