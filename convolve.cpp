@@ -57,7 +57,11 @@ void displayWaveHeader(struct wavHeader* header);
 void displayDataChunkHeader(struct dataHeader* header);
 void timeConvolve(double x[], int N, double h[], int M, double y[], int P);
 
-int main (int argc, char** argv) {
+int main (int argc, char* argv[]) {
+    if (argc != 4) {
+        cout << "Usage: "
+    }
+
     // Sound file
     struct wavHeader soundFileHeader;
     struct dataHeader soundFileDataHeader;
