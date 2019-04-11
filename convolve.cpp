@@ -8,16 +8,6 @@
 #include <cstdlib>
 #include <vector>
 
-// Sound file macros
-#define DRUMS "DrumsDry.wav"
-#define PIANO "Synthesized_Piano.wav"
-#define HARPSICHORD "Synthesized_Harpsichord.wav"
-#define CHANT "TibetanChant.wav"
-#define GUITAR "GuitarDry.wav"
-#define BIG_HALL_IR "BigHall_IR.wav"
-#define TAJ_MAHAL_IR "TajMahal_IR.wav"
-#define OUTPUT_FILE "output.wav"
-
 // Macros for calculations and writing headers
 #define FREQUENCY         440.0
 #define SAMPLE_RATE       44100.0
@@ -193,6 +183,7 @@ void readWav(const char* fileName, struct wavHeader * wHeader, struct dataHeader
 }
 
 void displayWaveHeader(struct wavHeader * header) {
+    printf("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
     printf("Size of header is %d bytes\n", sizeof(*header));
     printf("----------------------------------------------\n");
     printf("Chunk ID: %.4s\n", header -> chunkID);
@@ -209,7 +200,7 @@ void displayWaveHeader(struct wavHeader * header) {
 }
 
 void displayDataChunkHeader(struct dataHeader * header) {
-    printf("Size of data header is %d bytes\n", sizeof(*header));
+    printf("\nSize of data header is %d bytes\n", sizeof(*header));
     printf("----------------------------------------------\n");
     printf("Sub-Chunk 2 ID: %.4s\n", header -> subChunk2ID);
     printf("Sub-Chunk 2 Size: %d\n", header -> subChunk2Size);
