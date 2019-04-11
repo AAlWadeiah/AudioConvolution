@@ -52,6 +52,9 @@ void displayWaveHeader(struct wavHeader* header);
 void displayDataChunkHeader(struct dataHeader* header);
 void timeConvolve(double x[], int N, double h[], int M, double y[], int P);
 void fastFourierTransform(double data[], int nn, int isign);
+void FFTConvolve(double x[], int N, double h[], int M, double y[], int P);
+void timeToFrequency(double timeSignal[], unsigned int timeSize, double frequencySignal[], unsigned int frequencySize);
+void multiplySignals(double drySignal[], double irSignal[], double outputSignal[], unsigned int complexSignalSize);
 
 int main (int argc, char* argv[]) {
     if (argc != 4) {
@@ -81,12 +84,67 @@ int main (int argc, char* argv[]) {
 
     cout << "Convolving...\n";
     outputSamples.resize(impulseSamples.size() + soundSamples.size() - 1);
-    timeConvolve(&soundSamples[0], soundSamples.size(), &impulseSamples[0], impulseSamples.size(), &outputSamples[0], outputSamples.size());
+    FFTConvolve(&soundSamples[0], soundSamples.size(), &impulseSamples[0], impulseSamples.size(), &outputSamples[0], outputSamples.size());
     
     cout << "Convolved. Writing to \"" << outputFile << "\"\n";
     writeWav(&soundFileDataHeader, outputSamples, outputFile);
 
     return 0;
+}
+
+void timeToFrequency(double timeSignal[], unsigned int timeSize, double frequencySignal[], unsigned int frequencySize) {
+    unsigned int i, j;
+    for (i = 0, j = 0; i < timeSize; i++, j += 2) {
+        frequencySignal[j] = timeSignal[i];
+        frequencySignal[j + 1] = 0.0;
+    }
+}
+
+void multiplySignals(double drySignal[], double irSignal[], double outputSignal[], unsigned int complexSignalSize) {
+    for (int i = 0; i < complexSignalSize; i += 2) { 
+		outputSignal[i] = (drySignal[i] * irSignal[i]) - (drySignal[i + 1] * irSignal[i + 1]);
+		outputSignal[i + 1] = (drySignal[i] * irSignal[i + 1]) + (drySignal[i + 1] * irSignal[i]);
+	}
+}
+
+void FFTConvolve(double x[], int N, double h[], int M, double y[], int P) {
+    unsigned int signalSize, complexSignalSize;
+
+    signalSize = 1;
+    while (signalSize < P) {
+        signalSize *= 2;
+    }
+
+    complexSignalSize = signalSize * 2;
+    
+    double* xComplexSignal = new double[complexSignalSize];
+    double* hComplexSignal = new double[complexSignalSize];
+    double* yComplexSignal = new double[complexSignalSize];
+
+    timeToFrequency(x, N, xComplexSignal, signalSize);
+    timeToFrequency(h, M, hComplexSignal, signalSize);
+
+    fastFourierTransform((xComplexSignal - 1), signalSize, FFT);
+    fastFourierTransform((hComplexSignal - 1), signalSize, FFT);
+
+    multiplySignals(xComplexSignal, hComplexSignal, yComplexSignal, complexSignalSize);
+
+    fastFourierTransform((yComplexSignal - 1), signalSize, INVERSE_FFT);
+
+    for (int i = 0; i < complexSignalSize; i++)
+        yComplexSignal[i] /= (double) complexSignalSize;
+    
+    double max = 0;
+    for (int i = 0; i < P; i++) {
+        y[i] = yComplexSignal[i*2];
+        if(abs(y[i]) > max) max = y[i];
+    }
+
+    for(int i = 0; i < P; i++) y[i] /= max;
+    
+    delete[] xComplexSignal;
+    delete[] hComplexSignal;
+    delete[] yComplexSignal;
 }
 
 void fastFourierTransform(double data[], int nn, int isign) {
@@ -221,7 +279,6 @@ void readWav(const char* fileName, struct wavHeader * wHeader, struct dataHeader
     if(wHeader->subChunk1Size == 18) fseek(infile, 2, SEEK_CUR);
     fread(dHeader, sizeof(dataHeader), 1, infile);
 
-    cout << "Making the array\n";
     int numOfSamples = dHeader -> subChunk2Size / (wHeader -> numChannels * BYTES_PER_SAMPLE);
     cout << "Number of samples " << numOfSamples << endl;
     short singleSample;
