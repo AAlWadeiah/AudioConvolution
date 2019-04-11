@@ -8,13 +8,18 @@
 #include <cstdlib>
 #include <vector>
 
+#define FFT                 1
+#define INVERSE_FFT         -1
 // Macros for calculations and writing headers
-#define FREQUENCY         440.0
-#define SAMPLE_RATE       44100.0
-#define BITS_PER_SAMPLE   16
-#define BYTES_PER_SAMPLE  (BITS_PER_SAMPLE/8)
-#define MONOPHONIC        1
-#define STEREOPHONIC      2
+#define FREQUENCY           440.0
+#define SAMPLE_RATE         44100.0
+#define BITS_PER_SAMPLE     16
+#define BYTES_PER_SAMPLE    (BITS_PER_SAMPLE/8)
+#define MONOPHONIC          1
+#define STEREOPHONIC        2
+#define PI                  3.141592653589793
+#define TWO_PI              (2.0 * PI)
+#define SWAP(a, b)          tempr = (a); (a) = (b); (b) = tempr
 
 using namespace std;
 
@@ -46,6 +51,7 @@ size_t fwriteShortLSB(short int data, FILE* fileStream);
 void displayWaveHeader(struct wavHeader* header);
 void displayDataChunkHeader(struct dataHeader* header);
 void timeConvolve(double x[], int N, double h[], int M, double y[], int P);
+void fastFourierTransform(double data[], int nn, int isign);
 
 int main (int argc, char* argv[]) {
     if (argc != 4) {
@@ -83,7 +89,53 @@ int main (int argc, char* argv[]) {
     return 0;
 }
 
-void timeConvolve(double x[], int N, double h[], int M, double y[], int P){
+void fastFourierTransform(double data[], int nn, int isign) {
+    unsigned long n, mmax, m, j, istep, i;
+    double wtemp, wr, wpr, wpi, wi, theta, tempr, tempi;
+
+    n = nn << 1;
+    j = 1;
+
+    for (i = 1; i < n; i += 2) {
+        if (j > i) {
+            SWAP(data[j], data[i]);
+            SWAP(data[j+1], data[i+1]);
+        }
+        m = nn;
+        while (m >= 2 && j > m) {
+            j -= m;
+            m >>= 1;
+        }
+        j += m;
+    }
+
+    mmax = 2;
+    while (n > mmax) {
+        istep = mmax << 1;
+        theta = isign * (6.28318530717959 / mmax);
+        wtemp = sin(0.5 * theta);
+        wpr = -2.0 * wtemp * wtemp;
+        wpi = sin(theta);
+        wr = 1.0;
+        wi = 0.0;
+        for (m = 1; m < mmax; m += 2) {
+            for (i = m; i <= n; i += istep) {
+                j = i + mmax;
+                tempr = wr * data[j] - wi * data[j+1];
+                tempi = wr * data[j+1] + wi * data[j];
+                data[j] = data[i] - tempr;
+                data[j+1] = data[i+1] - tempi;
+                data[i] += tempr;
+                data[i+1] += tempi;
+            }
+            wr = (wtemp = wr) * wpr - wi * wpi + wr;
+            wi = wi * wpr + wtemp * wpi + wi;
+        }
+        mmax = istep;
+    }
+}
+
+void timeConvolve(double x[], int N, double h[], int M, double y[], int P) {
     int n, m;
 
     // Make sure the output buffer is the right size: P = N + M - 1
