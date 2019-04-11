@@ -55,6 +55,7 @@ size_t fwriteIntLSB(int data, FILE* fileStream);
 size_t fwriteShortLSB(short int data, FILE* fileStream);
 void displayWaveHeader(struct wavHeader* header);
 void displayDataChunkHeader(struct dataHeader* header);
+void timeConvolve(double x[], int N, double h[], int M, double y[], int P);
 
 int main (int argc, char** argv) {
     // Sound file
@@ -69,12 +70,45 @@ int main (int argc, char** argv) {
     vector<double> impulseSamples;
     vector<double> outputSamples;
 
-    readWav(GUITAR, &soundFileHeader, &soundFileDataHeader, soundSamples);
+    cout << "Reading files\n";
+    readWav(CHANT, &soundFileHeader, &soundFileDataHeader, soundSamples);
     readWav(BIG_HALL_IR, &impulseFileHeader, &impulseFileDataHeader, impulseSamples);
+
+    cout << "Convolving...\n";
+    outputSamples.resize(impulseSamples.size() + soundSamples.size() - 1);
+    timeConvolve(&soundSamples[0], soundSamples.size(), &impulseSamples[0], impulseSamples.size(), &outputSamples[0], outputSamples.size());
     
+    cout << "Convolved. Writing to \"output.wav\"\n";
     writeWav(&soundFileDataHeader, outputSamples);
 
     return 0;
+}
+
+void timeConvolve(double x[], int N, double h[], int M, double y[], int P){
+    int n, m;
+
+    // Make sure the output buffer is the right size: P = N + M - 1
+    if (P != (N + M - 1)) {
+        printf("Output signal vector is the wrong size\n");
+        printf("It is %-d, but should be %-d\n", P, (N + M - 1));
+        printf("Aborting convolution\n");
+        return;
+    }
+
+    // Clear the output buffer y[] to all zero values
+    for (n = 0; n < P; n++) y[n] = 0.0;
+
+    double max = 0;
+    // Outer loop:  process each input value x[n] in turn
+    for (n = 0; n < N; n++) {
+        // Inner loop:  process x[n] with each sample of h[]
+        for (m = 0; m < M; m++){
+            y[n+m] += x[n] * h[m];
+            if(abs(y[n+m]) > max) max = y[n+m];
+        }
+    }
+    // Divide by max element in y to normalize y
+    for(int i = 0; i < P; i++) y[i] /= max;
 }
 
 void writeWavHeader(FILE* outfile, int numOfChannels, int soundSampleSize, double sampleRate) {
