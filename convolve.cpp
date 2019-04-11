@@ -49,7 +49,7 @@ struct dataHeader {
 
 // Function prototypes
 void readWav(const char* fileName, struct wavHeader* wHeader, struct dataHeader* dHeader, vector <double> &samples);
-void writeWav(struct dataHeader* dHeader, vector <double> &samples);
+void writeWav(struct dataHeader* dHeader, vector <double> &samples, const char* outFileName);
 void writeWavHeader(FILE* outfile, int numOfChannels, int soundSampleSize, double sampleRate);
 size_t fwriteIntLSB(int data, FILE* fileStream);
 size_t fwriteShortLSB(short int data, FILE* fileStream);
@@ -59,8 +59,13 @@ void timeConvolve(double x[], int N, double h[], int M, double y[], int P);
 
 int main (int argc, char* argv[]) {
     if (argc != 4) {
-        cout << "Usage: "
+        cout << "Usage: ./convolve [inputFile] [impulseResponseFile] [outputFile]" << endl;
+        exit(0);
     }
+
+    const char* inputFile = argv[1];
+    const char* IRFile = argv[2];
+    const char* outputFile = argv[3];
 
     // Sound file
     struct wavHeader soundFileHeader;
@@ -75,15 +80,15 @@ int main (int argc, char* argv[]) {
     vector<double> outputSamples;
 
     cout << "Reading files\n";
-    readWav(CHANT, &soundFileHeader, &soundFileDataHeader, soundSamples);
-    readWav(BIG_HALL_IR, &impulseFileHeader, &impulseFileDataHeader, impulseSamples);
+    readWav(inputFile, &soundFileHeader, &soundFileDataHeader, soundSamples);
+    readWav(IRFile, &impulseFileHeader, &impulseFileDataHeader, impulseSamples);
 
     cout << "Convolving...\n";
     outputSamples.resize(impulseSamples.size() + soundSamples.size() - 1);
     timeConvolve(&soundSamples[0], soundSamples.size(), &impulseSamples[0], impulseSamples.size(), &outputSamples[0], outputSamples.size());
     
-    cout << "Convolved. Writing to \"output.wav\"\n";
-    writeWav(&soundFileDataHeader, outputSamples);
+    cout << "Convolved. Writing to \"" << outputFile << "\"\n";
+    writeWav(&soundFileDataHeader, outputSamples, outputFile);
 
     return 0;
 }
@@ -154,8 +159,8 @@ size_t fwriteShortLSB(short int data, FILE *stream) {
     return fwrite(array, sizeof(unsigned char), 2, stream);
 }
 
-void writeWav(struct dataHeader* dHeader, vector <double> &samples) {
-    FILE * outfile = fopen(OUTPUT_FILE, "wb+");
+void writeWav(struct dataHeader* dHeader, vector <double> &samples, const char* outFileName) {
+    FILE * outfile = fopen(outFileName, "wb+");
     int soundSampleSize = dHeader -> subChunk2Size;
     writeWavHeader(outfile, MONOPHONIC, soundSampleSize, SAMPLE_RATE);
     short sample_data[samples.size()];
