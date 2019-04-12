@@ -94,9 +94,11 @@ int main (int argc, char* argv[]) {
 
 void timeToFrequency(double timeSignal[], unsigned int timeSize, double frequencySignal[], unsigned int frequencySize) {
     unsigned int i, j;
-    for (i = 0, j = 0; i < timeSize; i++, j += 2) {
+    for (i = 0, j = 0; i < timeSize; i+= 2, j += 4) {
         frequencySignal[j] = timeSignal[i];
         frequencySignal[j + 1] = 0.0;
+        frequencySignal[j + 3] = timeSignal[i + 1];
+        frequencySignal[j + 4] = 0.0;
     }
 }
 
