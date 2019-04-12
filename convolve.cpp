@@ -8,24 +8,19 @@
 #include <cstdlib>
 #include <vector>
 
-// Sound file macros
-#define DRUMS "DrumsDry.wav"
-#define PIANO "Synthesized_Piano.wav"
-#define HARPSICHORD "Synthesized_Harpsichord.wav"
-#define CHANT "TibetanChant.wav"
-#define GUITAR "GuitarDry.wav"
-#define BIG_HALL_IR "BigHall_IR.wav"
-#define TAJ_MAHAL_IR "TajMahal_IR.wav"
-#define AUTO_PARK_IR "AutoPark_IR.wav"
-#define OUTPUT_FILE "output.wav"
+#define FFT                 1
+#define INVERSE_FFT         -1
 
 // Macros for calculations and writing headers
-#define FREQUENCY         440.0
-#define SAMPLE_RATE       44100.0
-#define BITS_PER_SAMPLE   16
-#define BYTES_PER_SAMPLE  (BITS_PER_SAMPLE/8)
-#define MONOPHONIC        1
-#define STEREOPHONIC      2
+#define FREQUENCY           440.0
+#define SAMPLE_RATE         44100.0
+#define BITS_PER_SAMPLE     16
+#define BYTES_PER_SAMPLE    (BITS_PER_SAMPLE/8)
+#define MONOPHONIC          1
+#define STEREOPHONIC        2
+#define PI                  3.141592653589793
+#define TWO_PI              (2.0 * PI)
+#define SWAP(a, b)          tempr = (a); (a) = (b); (b) = tempr
 
 using namespace std;
 
@@ -50,15 +45,28 @@ struct dataHeader {
 
 // Function prototypes
 void readWav(const char* fileName, struct wavHeader* wHeader, struct dataHeader* dHeader, vector <double> &samples);
-void writeWav(struct dataHeader* dHeader, vector <double> &samples);
+void writeWav(struct dataHeader* dHeader, vector <double> &samples, const char* outFileName);
 void writeWavHeader(FILE* outfile, int numOfChannels, int soundSampleSize, double sampleRate);
 size_t fwriteIntLSB(int data, FILE* fileStream);
 size_t fwriteShortLSB(short int data, FILE* fileStream);
 void displayWaveHeader(struct wavHeader* header);
 void displayDataChunkHeader(struct dataHeader* header);
 void timeConvolve(double x[], int N, double h[], int M, double y[], int P);
+void fastFourierTransform(double data[], int nn, int isign);
+void FFTConvolve(double x[], int N, double h[], int M, double y[], int P);
+void timeToFrequency(double timeSignal[], unsigned int timeSize, double frequencySignal[], unsigned int frequencySize);
+void multiplySignals(double drySignal[], double irSignal[], double outputSignal[], unsigned int complexSignalSize);
 
-int main (int argc, char** argv) {
+int main (int argc, char* argv[]) {
+    if (argc != 4) {
+        cout << "Usage: ./convolve [inputFile] [impulseResponseFile] [outputFile]" << endl;
+        exit(0);
+    }
+
+    const char* inputFile = argv[1];
+    const char* IRFile = argv[2];
+    const char* outputFile = argv[3];
+
     // Sound file
     struct wavHeader soundFileHeader;
     struct dataHeader soundFileDataHeader;
@@ -72,20 +80,121 @@ int main (int argc, char** argv) {
     vector<double> outputSamples;
 
     cout << "Reading files\n";
-    readWav(PIANO, &soundFileHeader, &soundFileDataHeader, soundSamples);
-    readWav(AUTO_PARK_IR, &impulseFileHeader, &impulseFileDataHeader, impulseSamples);
-
+    readWav(inputFile, &soundFileHeader, &soundFileDataHeader, soundSamples);
+    readWav(IRFile, &impulseFileHeader, &impulseFileDataHeader, impulseSamples);
+    
     cout << "Convolving...\n";
     outputSamples.resize(impulseSamples.size() + soundSamples.size() - 1);
-    timeConvolve(&soundSamples[0], soundSamples.size(), &impulseSamples[0], impulseSamples.size(), &outputSamples[0], outputSamples.size());
+    FFTConvolve(&soundSamples[0], soundSamples.size(), &impulseSamples[0], impulseSamples.size(), &outputSamples[0], outputSamples.size());
     
-    cout << "Convolved. Writing to \"output.wav\"\n";
-    writeWav(&soundFileDataHeader, outputSamples);
+    cout << "Convolved. Writing to \"" << outputFile << "\"\n";
+    writeWav(&soundFileDataHeader, outputSamples, outputFile);
 
     return 0;
 }
 
-void timeConvolve(double x[], int N, double h[], int M, double y[], int P){
+void timeToFrequency(double timeSignal[], unsigned int timeSize, double frequencySignal[], unsigned int frequencySize) {
+    unsigned int i, j;
+    for (i = 0, j = 0; i < timeSize; i++, j += 2) {
+        frequencySignal[j] = timeSignal[i];
+        frequencySignal[j + 1] = 0.0;
+    }
+}
+
+void multiplySignals(double drySignal[], double irSignal[], double outputSignal[], unsigned int complexSignalSize) {
+    for (int i = 0; i < complexSignalSize; i += 2) { 
+		outputSignal[i] = (drySignal[i] * irSignal[i]) - (drySignal[i + 1] * irSignal[i + 1]);
+		outputSignal[i + 1] = (drySignal[i] * irSignal[i + 1]) + (drySignal[i + 1] * irSignal[i]);
+	}
+}
+
+void FFTConvolve(double x[], int N, double h[], int M, double y[], int P) {
+    unsigned int signalSize, complexSignalSize;
+
+    signalSize = 1;
+    while (signalSize < P) {
+        signalSize *= 2;
+    }
+
+    complexSignalSize = signalSize * 2;
+    
+    double* xComplexSignal = new double[complexSignalSize];
+    double* hComplexSignal = new double[complexSignalSize];
+    double* yComplexSignal = new double[complexSignalSize];
+
+    timeToFrequency(x, N, xComplexSignal, signalSize);
+    timeToFrequency(h, M, hComplexSignal, signalSize);
+
+    fastFourierTransform((xComplexSignal - 1), signalSize, FFT);
+    fastFourierTransform((hComplexSignal - 1), signalSize, FFT);
+
+    multiplySignals(xComplexSignal, hComplexSignal, yComplexSignal, complexSignalSize);
+
+    fastFourierTransform((yComplexSignal - 1), signalSize, INVERSE_FFT);
+
+    for (int i = 0; i < complexSignalSize; i++)
+        yComplexSignal[i] /= (double) complexSignalSize;
+    
+    double max = 0;
+    for (int i = 0; i < P; i++) {
+        y[i] = yComplexSignal[i*2];
+        if(abs(y[i]) > max) max = y[i];
+    }
+
+    for(int i = 0; i < P; i++) y[i] /= max;
+    
+    delete[] xComplexSignal;
+    delete[] hComplexSignal;
+    delete[] yComplexSignal;
+}
+
+void fastFourierTransform(double data[], int nn, int isign) {
+    unsigned long n, mmax, m, j, istep, i;
+    double wtemp, wr, wpr, wpi, wi, theta, tempr, tempi;
+
+    n = nn << 1;
+    j = 1;
+
+    for (i = 1; i < n; i += 2) {
+        if (j > i) {
+            SWAP(data[j], data[i]);
+            SWAP(data[j+1], data[i+1]);
+        }
+        m = nn;
+        while (m >= 2 && j > m) {
+            j -= m;
+            m >>= 1;
+        }
+        j += m;
+    }
+
+    mmax = 2;
+    while (n > mmax) {
+        istep = mmax << 1;
+        theta = isign * (6.28318530717959 / mmax);
+        wtemp = sin(0.5 * theta);
+        wpr = -2.0 * wtemp * wtemp;
+        wpi = sin(theta);
+        wr = 1.0;
+        wi = 0.0;
+        for (m = 1; m < mmax; m += 2) {
+            for (i = m; i <= n; i += istep) {
+                j = i + mmax;
+                tempr = wr * data[j] - wi * data[j+1];
+                tempi = wr * data[j+1] + wi * data[j];
+                data[j] = data[i] - tempr;
+                data[j+1] = data[i+1] - tempi;
+                data[i] += tempr;
+                data[i+1] += tempi;
+            }
+            wr = (wtemp = wr) * wpr - wi * wpi + wr;
+            wi = wi * wpr + wtemp * wpi + wi;
+        }
+        mmax = istep;
+    }
+}
+
+void timeConvolve(double x[], int N, double h[], int M, double y[], int P) {
     int n, m;
 
     // Make sure the output buffer is the right size: P = N + M - 1
@@ -151,8 +260,8 @@ size_t fwriteShortLSB(short int data, FILE *stream) {
     return fwrite(array, sizeof(unsigned char), 2, stream);
 }
 
-void writeWav(struct dataHeader* dHeader, vector <double> &samples) {
-    FILE * outfile = fopen(OUTPUT_FILE, "wb+");
+void writeWav(struct dataHeader* dHeader, vector <double> &samples, const char* outFileName) {
+    FILE * outfile = fopen(outFileName, "wb+");
     int soundSampleSize = dHeader -> subChunk2Size;
     writeWavHeader(outfile, MONOPHONIC, soundSampleSize, SAMPLE_RATE);
     short sample_data[samples.size()];
@@ -171,7 +280,6 @@ void readWav(const char* fileName, struct wavHeader * wHeader, struct dataHeader
     if(wHeader->subChunk1Size == 18) fseek(infile, 2, SEEK_CUR);
     fread(dHeader, sizeof(dataHeader), 1, infile);
 
-    cout << "Making the array\n";
     int numOfSamples = dHeader -> subChunk2Size / (wHeader -> numChannels * BYTES_PER_SAMPLE);
     cout << "Number of samples " << numOfSamples << endl;
     short singleSample;
@@ -185,6 +293,7 @@ void readWav(const char* fileName, struct wavHeader * wHeader, struct dataHeader
 }
 
 void displayWaveHeader(struct wavHeader * header) {
+    printf("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
     printf("Size of header is %d bytes\n", sizeof(*header));
     printf("----------------------------------------------\n");
     printf("Chunk ID: %.4s\n", header -> chunkID);
@@ -201,7 +310,7 @@ void displayWaveHeader(struct wavHeader * header) {
 }
 
 void displayDataChunkHeader(struct dataHeader * header) {
-    printf("Size of data header is %d bytes\n", sizeof(*header));
+    printf("\nSize of data header is %d bytes\n", sizeof(*header));
     printf("----------------------------------------------\n");
     printf("Sub-Chunk 2 ID: %.4s\n", header -> subChunk2ID);
     printf("Sub-Chunk 2 Size: %d\n", header -> subChunk2Size);
