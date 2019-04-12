@@ -30,6 +30,7 @@
 *.exe
 *.out
 *.app
+convolve
 
 # Visual Studio Code files
 .vscode/
