@@ -1,5 +1,5 @@
-convolver.out: convolver.o
-	g++ -o convolver.out convolver.o
+convolve.out: convolve.o
+	g++ -o convolve.out convolve.o
 
-convolver.o: convolver.cpp
-	g++ -c convolver.cpp
+convolve.o: convolve.cpp
+	g++ -c convolve.cpp

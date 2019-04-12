@@ -16,6 +16,7 @@
 #define GUITAR "GuitarDry.wav"
 #define BIG_HALL_IR "BigHall_IR.wav"
 #define TAJ_MAHAL_IR "TajMahal_IR.wav"
+#define AUTO_PARK_IR "AutoPark_IR.wav"
 #define OUTPUT_FILE "output.wav"
 
 // Macros for calculations and writing headers
@@ -71,8 +72,8 @@ int main (int argc, char** argv) {
     vector<double> outputSamples;
 
     cout << "Reading files\n";
-    readWav(CHANT, &soundFileHeader, &soundFileDataHeader, soundSamples);
-    readWav(BIG_HALL_IR, &impulseFileHeader, &impulseFileDataHeader, impulseSamples);
+    readWav(PIANO, &soundFileHeader, &soundFileDataHeader, soundSamples);
+    readWav(AUTO_PARK_IR, &impulseFileHeader, &impulseFileDataHeader, impulseSamples);
 
     cout << "Convolving...\n";
     outputSamples.resize(impulseSamples.size() + soundSamples.size() - 1);
@@ -157,7 +158,7 @@ void writeWav(struct dataHeader* dHeader, vector <double> &samples) {
     short sample_data[samples.size()];
 
     // write data to file
-    for(int i = 0; i < samples.size(); i++) sample_data[i] = (short) (samples[i] * (double) (INT16_MAX));
+    for(int i = 0; i < samples.size(); i++) sample_data[i] = (short) (samples[i] * (double) (INT16_MAX - 1));
 
     fwrite(&sample_data, 1, samples.size(), outfile);
 }
@@ -177,7 +178,7 @@ void readWav(const char* fileName, struct wavHeader * wHeader, struct dataHeader
     
     for(int i = 0; i < dHeader -> subChunk2Size; i++) {
         fread(&singleSample, sizeof(short), 1, infile);
-        samples.push_back((double) singleSample / (double) (INT16_MAX));
+        samples.push_back((double) singleSample / (double) (INT16_MAX - 1));
     }
     displayWaveHeader(wHeader);
     displayDataChunkHeader(dHeader);
