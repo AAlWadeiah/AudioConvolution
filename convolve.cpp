@@ -82,10 +82,10 @@ int main (int argc, char* argv[]) {
     cout << "Reading files\n";
     readWav(inputFile, &soundFileHeader, &soundFileDataHeader, soundSamples);
     readWav(IRFile, &impulseFileHeader, &impulseFileDataHeader, impulseSamples);
-    
+
     cout << "Convolving...\n";
     outputSamples.resize(impulseSamples.size() + soundSamples.size() - 1);
-    FFTConvolve(&soundSamples[0], soundSamples.size(), &impulseSamples[0], impulseSamples.size(), &outputSamples[0], outputSamples.size());
+    timeConvolve(&soundSamples[0], soundSamples.size(), &impulseSamples[0], impulseSamples.size(), &outputSamples[0], outputSamples.size());
     
     cout << "Convolved. Writing to \"" << outputFile << "\"\n";
     writeWav(&soundFileDataHeader, outputSamples, outputFile);
@@ -280,8 +280,7 @@ void readWav(const char* fileName, struct wavHeader * wHeader, struct dataHeader
     if(wHeader->subChunk1Size == 18) fseek(infile, 2, SEEK_CUR);
     fread(dHeader, sizeof(dataHeader), 1, infile);
 
-    int numOfSamples = dHeader -> subChunk2Size / (wHeader -> numChannels * BYTES_PER_SAMPLE);
-    cout << "Number of samples " << numOfSamples << endl;
+    // int numOfSamples = dHeader -> subChunk2Size / (wHeader -> numChannels * BYTES_PER_SAMPLE);
     short singleSample;
     
     for(int i = 0; i < dHeader -> subChunk2Size; i++) {
