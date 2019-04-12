@@ -90,7 +90,6 @@ int main (int argc, char* argv[]) {
     cout << "Convolved. Writing to \"" << outputFile << "\"\n";
     writeWav(&soundFileDataHeader, outputSamples, outputFile);
     cout << "written" << endl;
-    return 0;
 }
 
 void timeToFrequency(double timeSignal[], unsigned int timeSize, double frequencySignal[], unsigned int frequencySize) {
@@ -116,8 +115,8 @@ void FFTConvolve(double x[], int N, double h[], int M, double y[], int P) {
     //     signalSize *= 2;
     // }
 
-    int temp = (int)log2(P); 
-    signalSize = (int)pow(2, temp);  
+    unsigned int temp = (unsigned int)log2(P); 
+    signalSize = (unsigned int)pow(2, temp);
 
     complexSignalSize = signalSize * 2;
     
@@ -233,31 +232,31 @@ void writeWavHeader(FILE* outfile, int numOfChannels, int soundSampleSize, doubl
     
     // Writing values
     fputs("RIFF", outfile);
-    cout << "1" << endl;
+    // cout << "1" << endl;
     fwriteIntLSB(formSize, outfile);
-    cout << "2" << endl;
+    // cout << "2" << endl;
     fputs("WAVE", outfile);
-    cout << "3" << endl;
+    // cout << "3" << endl;
     fputs("fmt ", outfile);
-    cout << "4" << endl;
+    // cout << "4" << endl;
     fwriteIntLSB(16, outfile);
-    cout << "5" << endl;
+    // cout << "5" << endl;
     fwriteShortLSB(1, outfile);
-    cout << "6" << endl;
+    // cout << "6" << endl;
     fwriteShortLSB((short)numOfChannels, outfile);
-    cout << "7" << endl;
+    // cout << "7" << endl;
     fwriteIntLSB((int)sampleRate, outfile);
-    cout << "8" << endl;
+    // cout << "8" << endl;
     fwriteIntLSB(bytesPerSecond, outfile);
-    cout << "9" << endl;
+    // cout << "9" << endl;
     fwriteShortLSB(frameSize, outfile);
-    cout << "10" << endl;
+    // cout << "10" << endl;
     fwriteShortLSB(BITS_PER_SAMPLE, outfile);
-    cout << "11" << endl;
+    // cout << "11" << endl;
     fputs("data", outfile);
-    cout << "12" << endl;
+    // cout << "12" << endl;
     fwriteIntLSB(dataChunkSize, outfile);
-    cout << "13" << endl;
+    // cout << "13" << endl;
 }
 
 size_t fwriteIntLSB(int data, FILE *stream) {
@@ -280,12 +279,13 @@ void writeWav(struct dataHeader* dHeader, vector <double> &samples, const char* 
     FILE * outfile = fopen(outFileName, "wb+");
     int soundSampleSize = dHeader -> subChunk2Size;
     writeWavHeader(outfile, MONOPHONIC, soundSampleSize, SAMPLE_RATE);
-    short sample_data[samples.size()];
-
+    int sampleDataSize = samples.size();
+    short sample_data[sampleDataSize];
+    
     // write data to file
-    for(int i = 0; i < samples.size(); i++) sample_data[i] = (short) (samples[i] * (double) (INT16_MAX - 1));
+    for(int i = 0; i < sampleDataSize; i++) sample_data[i] = (short) (samples[i] * (double) (INT16_MAX - 1));
 
-    fwrite(&sample_data, 1, samples.size(), outfile);
+    fwrite(&sample_data, 1, sampleDataSize, outfile);
 }
 
 void readWav(const char* fileName, struct wavHeader * wHeader, struct dataHeader * dHeader, vector <double> &samples) {
