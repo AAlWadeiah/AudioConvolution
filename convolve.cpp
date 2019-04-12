@@ -85,11 +85,11 @@ int main (int argc, char* argv[]) {
 
     cout << "Convolving...\n";
     outputSamples.resize(impulseSamples.size() + soundSamples.size() - 1);
-    timeConvolve(&soundSamples[0], soundSamples.size(), &impulseSamples[0], impulseSamples.size(), &outputSamples[0], outputSamples.size());
+    FFTConvolve(&soundSamples[0], soundSamples.size(), &impulseSamples[0], impulseSamples.size(), &outputSamples[0], outputSamples.size());
     
     cout << "Convolved. Writing to \"" << outputFile << "\"\n";
     writeWav(&soundFileDataHeader, outputSamples, outputFile);
-
+    cout << "written" << endl;
     return 0;
 }
 
@@ -111,10 +111,13 @@ void multiplySignals(double drySignal[], double irSignal[], double outputSignal[
 void FFTConvolve(double x[], int N, double h[], int M, double y[], int P) {
     unsigned int signalSize, complexSignalSize;
 
-    signalSize = 1;
-    while (signalSize < P) {
-        signalSize *= 2;
-    }
+    // signalSize = 1;
+    // while (signalSize < P) {
+    //     signalSize *= 2;
+    // }
+
+    int temp = (int)log2(P); 
+    signalSize = (int)pow(2, temp);  
 
     complexSignalSize = signalSize * 2;
     
@@ -230,18 +233,31 @@ void writeWavHeader(FILE* outfile, int numOfChannels, int soundSampleSize, doubl
     
     // Writing values
     fputs("RIFF", outfile);
+    cout << "1" << endl;
     fwriteIntLSB(formSize, outfile);
+    cout << "2" << endl;
     fputs("WAVE", outfile);
+    cout << "3" << endl;
     fputs("fmt ", outfile);
+    cout << "4" << endl;
     fwriteIntLSB(16, outfile);
+    cout << "5" << endl;
     fwriteShortLSB(1, outfile);
+    cout << "6" << endl;
     fwriteShortLSB((short)numOfChannels, outfile);
+    cout << "7" << endl;
     fwriteIntLSB((int)sampleRate, outfile);
+    cout << "8" << endl;
     fwriteIntLSB(bytesPerSecond, outfile);
+    cout << "9" << endl;
     fwriteShortLSB(frameSize, outfile);
+    cout << "10" << endl;
     fwriteShortLSB(BITS_PER_SAMPLE, outfile);
+    cout << "11" << endl;
     fputs("data", outfile);
+    cout << "12" << endl;
     fwriteIntLSB(dataChunkSize, outfile);
+    cout << "13" << endl;
 }
 
 size_t fwriteIntLSB(int data, FILE *stream) {
