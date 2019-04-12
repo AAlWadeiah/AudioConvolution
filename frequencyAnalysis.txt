@@ -1,0 +1,81 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 95.70      4.63     4.63        3     1.54     1.54  fastFourierTransform(double*, int, int)
+  1.03      4.68     0.05        1     0.05     4.74  FFTConvolve(double*, int, double*, int, double*, int)
+  0.83      4.72     0.04        1     0.04     0.04  multiplySignals(double*, double*, double*, unsigned int)
+  0.41      4.74     0.02  3993936     0.00     0.00  void __gnu_cxx::new_allocator<double>...
+  0.41      4.76     0.02  3993936     0.00     0.00  void std::vector<double, std::allocator<double> >...
+  0.41      4.78     0.02        2     0.01     0.01  timeToFrequency(double*, unsigned int, double*, unsigned int)
+  0.41      4.80     0.02        1     0.02     0.02  __gnu_cxx::__enable_if<std::__is_scalar<double>...
+  0.31      4.82     0.02 11981851     0.00     0.00  double&& std::forward<double>...
+  0.21      4.83     0.01  3994122     0.00     0.00  std::vector<double, std::allocator<double> >...
+  0.21      4.84     0.01  3993938     0.00     0.00  std::vector<double, std::allocator<double> >...
+  0.10      4.84     0.01       87     0.00     0.00  double* std::__uninitialized_move_if_noexcept_a...
+  0.00      4.84     0.00  3993936     0.00     0.00  void std::allocator_traits<std::allocator<double> >...
+  0.00      4.84     0.00  3993936     0.00     0.00  std::vector<double, std::allocator<double> >::push_back(double&&)
+  0.00      4.84     0.00  3993936     0.00     0.00  std::remove_reference<double&>::type&& std::move<double&>(double&)
+  0.00      4.84     0.00  3993936     0.00     0.00  operator new(unsigned long, void*)
+  0.00      4.84     0.00  3993935     0.00     0.00  std::abs(double)
+  0.00      4.84     0.00      262     0.00     0.00  double* std::__niter_base<double*>(double*)
+  0.00      4.84     0.00      174     0.00     0.00  std::move_iterator<double*>::base() const
+  0.00      4.84     0.00      174     0.00     0.00  std::move_iterator<double*>::move_iterator(double*)
+  0.00      4.84     0.00      174     0.00     0.00  decltype (__miter_base(({parm#1}.base)())) std::__miter_base<double*>(std::move_iterator<double*>)
+  0.00      4.84     0.00      174     0.00     0.00  double* std::__miter_base<double*>(double*)
+  0.00      4.84     0.00      174     0.00     0.00  std::move_iterator<double*> std::__make_move_if_noexcept_iterator<double, std::move_iterator<double*> >(double*)
+  0.00      4.84     0.00      172     0.00     0.00  __gnu_cxx::__normal_iterator<double*, std::vector<double, std::allocator<double> > >::base() const
+  0.00      4.84     0.00      135     0.00     0.00  std::_Vector_base<double, std::allocator<double> >::_M_get_Tp_allocator()
+  0.00      4.84     0.00      134     0.00     0.00  __gnu_cxx::new_allocator<double>::max_size() const
+  0.00      4.84     0.00       90     0.00     0.00  std::_Vector_base<double, std::allocator<double> >::_M_get_Tp_allocator() const
+  0.00      4.84     0.00       90     0.00     0.00  std::vector<double, std::allocator<double> >::max_size() const
+  0.00      4.84     0.00       90     0.00     0.00  std::allocator_traits<std::allocator<double> >::max_size(std::allocator<double> const&)
+  0.00      4.84     0.00       87     0.00     0.00  double* std::__copy_move<true, true, std::random_access_iterator_tag>::__copy_m<double>(double const*, double const*, double*)
+  0.00      4.84     0.00       87     0.00     0.00  double* std::__uninitialized_copy<true>::__uninit_copy<std::move_iterator<double*>, double*>(std::move_iterator<double*>, std::move_iterator<double*>, double*)
+  0.00      4.84     0.00       87     0.00     0.00  double* std::__copy_move_a<true, double*, double*>(double*, double*, double*)
+  0.00      4.84     0.00       87     0.00     0.00  double* std::__copy_move_a2<true, double*, double*>(double*, double*, double*)
+  0.00      4.84     0.00       87     0.00     0.00  double* std::uninitialized_copy<std::move_iterator<double*>, double*>(std::move_iterator<double*>, std::move_iterator<double*>, double*)
+  0.00      4.84     0.00       87     0.00     0.00  double* std::__uninitialized_copy_a<std::move_iterator<double*>, double*, double>(std::move_iterator<double*>, std::move_iterator<double*>, double*, std::allocator<double>&)
+  0.00      4.84     0.00       87     0.00     0.00  double* std::copy<std::move_iterator<double*>, double*>(std::move_iterator<double*>, std::move_iterator<double*>, double*)
+  0.00      4.84     0.00       86     0.00     0.00  __gnu_cxx::__normal_iterator<double*, std::vector<double, std::allocator<double> > >::__normal_iterator(double* const&)
+  0.00      4.84     0.00       47     0.00     0.00  void std::_Destroy_aux<true>::__destroy<double*>(double*, double*)
+  0.00      4.84     0.00       47     0.00     0.00  std::_Vector_base<double, std::allocator<double> >::_M_deallocate(double*, unsigned long)
+  0.00      4.84     0.00       47     0.00     0.00  void std::_Destroy<double*>(double*, double*)
+  0.00      4.84     0.00       47     0.00     0.00  void std::_Destroy<double*, double>(double*, double*, std::allocator<double>&)
+  0.00      4.84     0.00       44     0.00     0.00  __gnu_cxx::new_allocator<double>::deallocate(double*, unsigned long)
+  0.00      4.84     0.00       44     0.00     0.00  __gnu_cxx::new_allocator<double>::allocate(unsigned long, void const*)
+  0.00      4.84     0.00       44     0.00     0.00  std::vector<double, std::allocator<double> >::_M_check_len(unsigned long, char const*) const
+  0.00      4.84     0.00       44     0.00     0.00  std::_Vector_base<double, std::allocator<double> >::_M_allocate(unsigned long)
+  0.00      4.84     0.00       44     0.00     0.00  std::allocator_traits<std::allocator<double> >::deallocate(std::allocator<double>&, double*, unsigned long)
+  0.00      4.84     0.00       44     0.00     0.00  std::allocator_traits<std::allocator<double> >::allocate(std::allocator<double>&, unsigned long)
+  0.00      4.84     0.00       44     0.00     0.00  unsigned long const& std::max<unsigned long>(unsigned long const&, unsigned long const&)
+  0.00      4.84     0.00       43     0.00     0.00  __gnu_cxx::__normal_iterator<double*, std::vector<double, std::allocator<double> > >::difference_type __gnu_cxx::operator-<double*, std::vector<double, std::allocator<double> > >(__gnu_cxx::__normal_iterator<double*, std::vector<double, std::allocator<double> > > const&, __gnu_cxx::__normal_iterator<double*, std::vector<double, std::allocator<double> > > const&)
+  0.00      4.84     0.00       43     0.00     0.00  void std::vector<double, std::allocator<double> >::_M_realloc_insert<double>(__gnu_cxx::__normal_iterator<double*, std::vector<double, std::allocator<double> > >, double&&)
+  0.00      4.84     0.00       43     0.00     0.00  std::vector<double, std::allocator<double> >::end()
+  0.00      4.84     0.00       43     0.00     0.00  std::vector<double, std::allocator<double> >::begin()
+  0.00      4.84     0.00        5     0.00     0.00  fwriteIntLSB(int, _IO_FILE*)
+  0.00      4.84     0.00        4     0.00     0.00  fwriteShortLSB(short, _IO_FILE*)
+  0.00      4.84     0.00        3     0.00     0.00  __gnu_cxx::new_allocator<double>::new_allocator()
+  0.00      4.84     0.00        3     0.00     0.00  __gnu_cxx::new_allocator<double>::~new_allocator()
+  0.00      4.84     0.00        3     0.00     0.00  std::allocator<double>::allocator()
+  0.00      4.84     0.00        3     0.00     0.00  std::allocator<double>::~allocator()
+  0.00      4.84     0.00        3     0.00     0.00  std::_Vector_base<double, std::allocator<double> >::_Vector_impl::_Vector_impl()
+  0.00      4.84     0.00        3     0.00     0.00  std::_Vector_base<double, std::allocator<double> >::_Vector_impl::~_Vector_impl()
+  0.00      4.84     0.00        3     0.00     0.00  std::_Vector_base<double, std::allocator<double> >::_Vector_base()
+  0.00      4.84     0.00        3     0.00     0.00  std::_Vector_base<double, std::allocator<double> >::~_Vector_base()
+  0.00      4.84     0.00        3     0.00     0.00  std::vector<double, std::allocator<double> >::vector()
+  0.00      4.84     0.00        3     0.00     0.00  std::vector<double, std::allocator<double> >::~vector()
+  0.00      4.84     0.00        2     0.00     0.00  displayWaveHeader(wavHeader*)
+  0.00      4.84     0.00        2     0.00     0.00  displayDataChunkHeader(dataHeader*)
+  0.00      4.84     0.00        2     0.00     0.03  readWav(char const*, wavHeader*, dataHeader*, std::vector<double, std::allocator<double> >&)
+  0.00      4.84     0.00        1     0.00     0.00  _GLOBAL__sub_I_wavHeader
+  0.00      4.84     0.00        1     0.00     0.00  writeWavHeader(_IO_FILE*, int, int, double)
+  0.00      4.84     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
+  0.00      4.84     0.00        1     0.00     0.02  writeWav(dataHeader*, std::vector<double, std::allocator<double> >&, char const*)
+  0.00      4.84     0.00        1     0.00     0.02  double* std::__uninitialized_default_n_1<true>::__uninit_default_n<double*, unsigned long>(double*, unsigned long)
+  0.00      4.84     0.00        1     0.00     0.02  std::vector<double, std::allocator<double> >::_M_default_append(unsigned long)
+  0.00      4.84     0.00        1     0.00     0.02  std::vector<double, std::allocator<double> >::resize(unsigned long)
+  0.00      4.84     0.00        1     0.00     0.02  double* std::__uninitialized_default_n<double*, unsigned long>(double*, unsigned long)
+  0.00      4.84     0.00        1     0.00     0.02  double* std::__uninitialized_default_n_a<double*, unsigned long, double>(double*, unsigned long, std::allocator<double>&)
+  0.00      4.84     0.00        1     0.00     0.02  double* std::fill_n<double*, unsigned long, double>(double*, unsigned long, double const&)

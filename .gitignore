@@ -32,7 +32,6 @@
 *.app
 convolve
 *Out.wav
-*Analysis.txt
 
 # Visual Studio Code files
 .vscode/
