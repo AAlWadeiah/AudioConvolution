@@ -112,13 +112,25 @@ void multiplySignals(double drySignal[], double irSignal[], double outputSignal[
 void FFTConvolve(double x[], int N, double h[], int M, double y[], int P) {
     unsigned int signalSize, complexSignalSize;
 
-    // signalSize = 1;
-    // while (signalSize < P) {
-    //     signalSize *= 2;
-    // }
+    signalSize = 1;
+    while (signalSize < P) {
+        signalSize <<= 1;
+    }
 
-    unsigned int temp = (unsigned int)log2(P); 
-    signalSize = (unsigned int)pow(2, temp);
+    // unsigned int temp = static_cast<unsigned int>(log2(P));
+    // signalSize = static_cast<unsigned int>(static_cast<int>(pow(2, temp)));
+
+    // signalSize = 1;
+    // for (int i=0; i<8*sizeof(unsigned int); i++) 
+    // { 
+    //     unsigned int curr = 1 << i; 
+  
+    //     // If current power is more than n, break 
+    //     if (curr > P) 
+    //        break; 
+  
+    //     signalSize = curr; 
+    // }
 
     complexSignalSize = signalSize * 2;
     
